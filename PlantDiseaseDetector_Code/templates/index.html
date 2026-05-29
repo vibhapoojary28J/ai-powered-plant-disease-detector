@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Plant Doctor</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e8f5e9;
+            text-align: center;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #2e7d32;
+        }
+
+        .upload-box {
+            border: 2px dashed #2e7d32;
+            padding: 30px;
+            border-radius: 15px;
+            background: #ffffff;
+            width: 350px;
+            margin: 20px auto;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            background: #f1f8e9;
+        }
+
+        #preview {
+            width: 250px;
+            margin-top: 20px;
+            display: none;
+            border-radius: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 10px #cccccc;
+            display: none;
+        }
+
+        #loader {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🌱 AI Plant Disease Detector</h1>
+    <p>Upload a leaf image and let AI detect the disease instantly.</p>
+
+    <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+        <p>📤 Click here to upload image</p>
+        <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="previewImage(event)">
+    </div>
+
+    <img id="preview">
+
+    <button onclick="uploadImage()">🔍 Detect Disease</button>
+
+    <img id="loader" src="https://i.gifer.com/ZZ5H.gif" width="80">
+
+    <div id="result"></div>
+
+    <script>
+        // Show preview image
+        function previewImage(event) {
+            const img = document.getElementById("preview");
+            img.src = URL.createObjectURL(event.target.files[0]);
+            img.style.display = "block";
+        }
+
+        // Upload + Predict
+        async function uploadImage() {
+            const fileInput = document.getElementById("imageInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            document.getElementById("loader").style.display = "block";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            document.getElementById("loader").style.display = "none";
+
+            if (data.error) {
+                document.getElementById("result").innerHTML =
+                    `<h3 style="color:red;">❌ Error:</h3><p>${data.error}</p>`;
+                document.getElementById("result").style.display = "block";
+                return;
+            }
+
+            document.getElementById("result").innerHTML =
+                `<h3>🩺 Disease Detected:</h3>
+                <p><strong>${data.disease}</strong></p>
+                <h3>🌱 Recommendation:</h3>
+                <p>${data.recommendation}</p>`;
+
+            document.getElementById("result").style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
