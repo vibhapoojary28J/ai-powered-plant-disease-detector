@@ -38,7 +38,6 @@ The system processes uploaded leaf images, extracts important visual features, c
 * Scikit-Learn
 * PCA (Principal Component Analysis)
 * Support Vector Machine (SVM)
-* Joblib
 
 ## Dataset
 
